@@ -54,4 +54,3 @@ jobs:
 
       - name: Run smoke test
         run: docker run --rm test /usr/local/bin/hul-smoke-test.sh
-	
