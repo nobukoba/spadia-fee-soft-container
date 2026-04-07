@@ -12,7 +12,6 @@ RUN dnf -y install \
       gcc-c++ \
       make \
       cmake \
-      ninja-build \
       git \
       python3 \
       tar \
