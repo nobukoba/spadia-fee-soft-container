@@ -1,3 +1,6 @@
+FROM almalinux:9
+
+ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
 LABEL org.opencontainers.image.source="https://github.com/nobukoba/spadia-fee-soft-container"
