@@ -66,4 +66,3 @@ jobs:
             /tmp/dist/*.tar.gz
             /tmp/dist/manifest.txt
           generate_release_notes: true
-	  
