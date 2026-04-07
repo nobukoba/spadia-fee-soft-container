@@ -1,0 +1,7 @@
+.git
+.github
+*.log
+tmp
+work
+tarballs
+dist

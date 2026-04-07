@@ -1,0 +1,69 @@
+name: build-hul-common-lib-alma9-tarball
+
+on:
+  workflow_dispatch:
+    inputs:
+      hul_ref:
+        description: "hul-common-lib tag, branch, or commit"
+        required: true
+        default: "main"
+      release_tag:
+        description: "GitHub Release tag to create/update in this repository (optional)"
+        required: false
+        default: ""
+
+jobs:
+  build-tarball:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nobukoba/spadia-fee-soft-container:latest
+
+    permissions:
+      contents: write
+
+    outputs:
+      tarball_name: ${{ steps.names.outputs.tarball_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide HUL_REF
+        id: vars
+        shell: bash
+        run: |
+          echo "hul_ref=${{ github.event.inputs.hul_ref }}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build hul-common-lib tarball
+        shell: bash
+        run: |
+          chmod +x scripts/build_hul.sh
+          HUL_REF="${{ steps.vars.outputs.hul_ref }}" scripts/build_hul.sh
+
+      - name: Determine tarball name
+        id: names
+        shell: bash
+        run: |
+          TARBALL_NAME="$(basename /tmp/dist/*.tar.gz)"
+          echo "tarball_name=${TARBALL_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Tarball: ${TARBALL_NAME}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.tarball_name }}
+          path: |
+            /tmp/dist/*.tar.gz
+            /tmp/dist/manifest.txt
+
+      - name: Create or update GitHub Release
+        if: ${{ steps.vars.outputs.release_tag != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.release_tag }}
+          files: |
+            /tmp/dist/*.tar.gz
+            /tmp/dist/manifest.txt
+          generate_release_notes: true
+	  
